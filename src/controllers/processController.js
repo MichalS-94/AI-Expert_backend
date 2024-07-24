@@ -4,19 +4,23 @@ const { logger } = require("../components/logger");
 const createProcess = async (
   camera_ip,
   channel,
-  url,
+  restreamerUrl,
   camera_user,
   camera_password,
   username,
   password
 ) => {
   try {
-    const token = await restreamerService.getAuthToken(url, username, password);
+    const token = await restreamerService.getAuthToken(
+      restreamerUrl,
+      username,
+      password
+    );
     const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, "-");
     const exists = await restreamerService.isProcessExists(
       token,
       process_id,
-      url
+      restreamerUrl
     );
     if (exists) {
       logger.log("info", `Process with ID ${process_id} already exists`);
@@ -25,11 +29,16 @@ const createProcess = async (
         token,
         camera_ip,
         channel,
-        url,
+        restreamerUrl,
         camera_user,
         camera_password
       );
-      await restreamerService.createSnapshot(token, camera_ip, channel, url);
+      await restreamerService.createSnapshot(
+        token,
+        camera_ip,
+        channel,
+        restreamerUrl
+      );
     }
   } catch (error) {
     logger.log("error", `Error creating process: ${error}`);
