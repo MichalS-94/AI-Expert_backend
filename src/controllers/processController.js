@@ -12,10 +12,10 @@ const createProcess = async (
 ) => {
   try {
     const token = await restreamerService.getAuthToken(url, username, password);
-    const [exists, process_id] = await restreamerService.isProcessExists(
+    const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, "-");
+    const exists = await restreamerService.isProcessExists(
       token,
-      camera_ip,
-      channel,
+      process_id,
       url
     );
     if (exists) {
@@ -47,7 +47,26 @@ const listProcesses = async (url, username, password) => {
   }
 };
 
+const removeProcess = async (username, password, process_id, url) => {
+  try {
+    const token = await restreamerService.getAuthToken(url, username, password);
+    const exists = await restreamerService.isProcessExists(
+      token,
+      process_id,
+      url
+    );
+    if (exists) {
+      await restreamerService.deleteProcess(token, url, process_id);
+    } else {
+      logger.log("warn", `Process with ID ${process_id} does not exist`);
+    }
+  } catch (error) {
+    logger.log("error", `Error removing processes: ${error}`);
+  }
+};
+
 module.exports = {
   createProcess,
   listProcesses,
+  removeProcess,
 };

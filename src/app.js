@@ -13,6 +13,12 @@ const main = async () => {
     config.RESTREAMER_USER,
     config.RESTREAMER_PASSWORD
   );
+  await processController.removeProcess(
+    config.RESTREAMER_USER,
+    config.RESTREAMER_PASSWORD,
+    "process_id",
+    config.RESTREAMER_URL
+  );
   await processController.listProcesses(
     config.RESTREAMER_URL,
     config.RESTREAMER_USER,

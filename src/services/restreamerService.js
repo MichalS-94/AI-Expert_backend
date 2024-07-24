@@ -156,7 +156,7 @@ const createStream = async (
         },
       }
     );
-    logger.log("info", `Stream created successfully: ${response.data}`);
+    logger.log("info", `Stream created successfully with ID ${process_id}`);
   } catch (error) {
     logger.log("error", `Error creating stream: ${error}`);
   }
@@ -205,7 +205,7 @@ const createSnapshot = async (token, camera_ip, channel, url) => {
     );
     logger.log(
       "info",
-      `Snapshot process created successfully: ${response.data}`
+      `Snapshot process created successfully with ID ${process_id}`
     );
   } catch (error) {
     logger.log("error", `Error creating snaphot process: ${error}`);
@@ -225,6 +225,20 @@ const getProcesses = async (token, url) => {
   }
 };
 
+const deleteProcess = async (token, url, process_id) => {
+  try {
+    const response = await axios.delete(`${url}/api/v3/process/${process_id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    logger.log("info", `Process with ID ${process_id} deleted`);
+    return response.data;
+  } catch (error) {
+    logger.log("error", `Error deleting processes: ${error}`);
+  }
+};
+
 const processesToList = (processes) => {
   const ids = [];
   if (processes !== null) {
@@ -241,11 +255,10 @@ const processesToList = (processes) => {
   return ids;
 };
 
-const isProcessExists = async (token, camera_ip, channel, url) => {
-  const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, "-");
+const isProcessExists = async (token, process_id, url) => {
   try {
     const processes = await getProcesses(token, url);
-    return [processes.some((process) => process.id === process_id), process_id];
+    return processes.some((process) => process.id === process_id);
   } catch (error) {
     logger.log("error", `Error checking if process exists: ${error}`);
   }
@@ -258,4 +271,5 @@ module.exports = {
   getProcesses,
   processesToList,
   isProcessExists,
+  deleteProcess,
 };
