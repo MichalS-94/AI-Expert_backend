@@ -1,4 +1,5 @@
 const restreamerService = require("../services/restreamerService");
+const { logger } = require("../components/logger");
 
 const createProcess = async (
   camera_ip,
@@ -18,7 +19,7 @@ const createProcess = async (
       url
     );
     if (exists) {
-      console.info(`Process with ID ${process_id} already exists`);
+      logger.log("info", `Process with ID ${process_id} already exists`);
     } else {
       await restreamerService.createStream(
         token,
@@ -31,7 +32,7 @@ const createProcess = async (
       await restreamerService.createSnapshot(token, camera_ip, channel, url);
     }
   } catch (error) {
-    console.error("Error creating process:", error);
+    logger.log("error", `Error creating process: ${error}`);
   }
 };
 
@@ -40,9 +41,9 @@ const listProcesses = async (url, username, password) => {
     const token = await restreamerService.getAuthToken(url, username, password);
     const processes = await restreamerService.getProcesses(token, url);
     const processList = restreamerService.processesToList(processes);
-    console.log(`Ongoing processes: ${JSON.stringify(processList)}`);
+    logger.log("info", `Ongoing processes: ${JSON.stringify(processList)}`);
   } catch (error) {
-    console.error("Error listing processes:", error);
+    logger.log("error", `Error listing processes: ${error}`);
   }
 };
 

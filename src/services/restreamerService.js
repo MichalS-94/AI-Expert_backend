@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { logger } = require("../components/logger");
 
 const getAuthToken = async (url, username, password) => {
   try {
@@ -6,9 +7,10 @@ const getAuthToken = async (url, username, password) => {
       username: username,
       password: password,
     });
+    logger.log("info", `Token recived`);
     return response.data.access_token;
   } catch (error) {
-    console.error("Error getting auth token:", error);
+    logger.log("error", `Error getting auth token: ${error}`);
   }
 };
 
@@ -154,10 +156,9 @@ const createStream = async (
         },
       }
     );
-    // console.log('Stream created successfully:', response.data);
-    console.log("Stream created successfully!");
+    logger.log("info", `Stream created successfully: ${response.data}`);
   } catch (error) {
-    console.error("Error creating stream:", error);
+    logger.log("error", `Error creating stream: ${error}`);
   }
 };
 
@@ -202,10 +203,12 @@ const createSnapshot = async (token, camera_ip, channel, url) => {
         },
       }
     );
-    // console.log('Snapshot created successfully:', response.data);
-    console.log("Snaphot process created successfully!");
+    logger.log(
+      "info",
+      `Snapshot process created successfully: ${response.data}`
+    );
   } catch (error) {
-    console.error("Error creating stream:", error);
+    logger.log("error", `Error creating snaphot process: ${error}`);
   }
 };
 
@@ -218,13 +221,11 @@ const getProcesses = async (token, url) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error getting processes:", error);
+    logger.log("error", `Error getting processes: ${error}`);
   }
 };
 
-// const
-
-function processesToList(processes) {
+const processesToList = (processes) => {
   const ids = [];
   if (processes !== null) {
     for (const key in processes) {
@@ -238,7 +239,7 @@ function processesToList(processes) {
     }
   }
   return ids;
-}
+};
 
 const isProcessExists = async (token, camera_ip, channel, url) => {
   const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, "-");
@@ -246,7 +247,7 @@ const isProcessExists = async (token, camera_ip, channel, url) => {
     const processes = await getProcesses(token, url);
     return [processes.some((process) => process.id === process_id), process_id];
   } catch (error) {
-    console.error("Error checking if process exists:", error);
+    logger.log("error", `Error checking if process exists: ${error}`);
   }
 };
 
