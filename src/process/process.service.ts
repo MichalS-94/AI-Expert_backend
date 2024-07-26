@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Process } from './process.entity';
 import { HttpModule } from '@nestjs/axios';
 import axios from 'axios';
-import { logger } from '../components/logger.js';
+//import { logger } from '../components/logger.js';
 @Injectable()
 export class ProcessService {
   private processes: Process[] = [];
@@ -288,7 +288,7 @@ export class ProcessService {
       const processes = await this.getProcesses(token, url);
       return processes.some((process) => process.id === process_id);
     } catch (error) {
-      logger.log('error', `Error checking if process exists: ${error}`);
+      //logger.log('error', `Error checking if process exists: ${error}`);
     }
   }
 }
