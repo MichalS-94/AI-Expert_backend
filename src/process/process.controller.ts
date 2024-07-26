@@ -97,7 +97,7 @@ export class ProcessController {
       if (exists) {
         await this.processService.deleteProcess(token, url, process_id);
       } else {
-        logger.log('warn', `Process with ID ${process_id} does not exist`);
+        //logger.log('warn', `Process with ID ${process_id} does not exist`);
       }
     } catch (error) {
       //logger.log("error", `Error removing processes: ${error}`);
