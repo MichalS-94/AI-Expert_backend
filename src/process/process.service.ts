@@ -282,43 +282,13 @@ export class ProcessService {
   delete(id: string): void {
     this.processes = this.processes.filter((process) => process.id !== id);
   }
-}
 
-/*
-
-
-const processesToList = (processes) => {
-  const ids = [];
-  if (processes !== null) {
-    for (const key in processes) {
-      if (processes[key] !== null && processes[key].id) {
-        if (ids.includes(processes[key].id)) {
-          pass;
-        } else {
-          ids.push(processes[key].id);
-        }
-      }
+  async isProcessExists(token, process_id, url) {
+    try {
+      const processes = await this.getProcesses(token, url);
+      return processes.some((process) => process.id === process_id);
+    } catch (error) {
+      logger.log('error', `Error checking if process exists: ${error}`);
     }
   }
-  return ids;
-};
-
-const isProcessExists = async (token, process_id, url) => {
-  try {
-    const processes = await getProcesses(token, url);
-    return processes.some((process) => process.id === process_id);
-  } catch (error) {
-    logger.log("error", `Error checking if process exists: ${error}`);
-  }
-};
-
-module.exports = {
-  getAuthToken,
-  createStream,
-  createSnapshot,
-  getProcesses,
-  processesToList,
-  isProcessExists,
-  deleteProcess,
-};
-*/
+}

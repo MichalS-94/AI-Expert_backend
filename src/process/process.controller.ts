@@ -79,4 +79,28 @@ export class ProcessController {
       processDetails.username,
     );
   }
+
+  @Post('/removeProcess')
+  @HttpCode(HttpStatus.CREATED)
+  async removeProcess(username, password, process_id, url) {
+    try {
+      const token = await this.processService.getAuthToken(
+        url,
+        username,
+        password,
+      );
+      const exists = await this.processService.isProcessExists(
+        token,
+        process_id,
+        url,
+      );
+      if (exists) {
+        await this.processService.deleteProcess(token, url, process_id);
+      } else {
+        logger.log('warn', `Process with ID ${process_id} does not exist`);
+      }
+    } catch (error) {
+      //logger.log("error", `Error removing processes: ${error}`);
+    }
+  }
 }
