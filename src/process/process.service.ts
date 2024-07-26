@@ -11,9 +11,9 @@ export class ProcessService {
     return 'Hello Process!';
   }
 
-  async getAuthToken(url, username, password) {
+  async getAuthToken(restreanerUrl, username, password) {
     try {
-      const response = await axios.post(`${url}/api/login`, {
+      const response = await axios.post(`${restreanerUrl}/api/login`, {
         username: username,
         password: password,
       });

@@ -12,10 +12,25 @@ import { ProcessService } from './process.service';
 @Controller('process')
 export class ProcessController {
   constructor(private readonly processService: ProcessService) {}
-
   @Get('/getProcessHello')
   getProcessHello(): string {
     return this.processService.getProcessHello();
+  }
+
+  @Post('/login')
+  async login(
+    @Body() authDetails: { url: string; username: string; password: string },
+  ) {
+    try {
+      const token = await this.processService.getAuthToken(
+        authDetails.url,
+        authDetails.username,
+        authDetails.password,
+      );
+      return token;
+    } catch (error) {
+      //logger.log('error', `Error listing processes: ${error}`);
+    }
   }
 
   @Get('/listProcesses')
