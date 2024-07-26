@@ -1,5 +1,6 @@
 import {
   Controller,
+  Inject,
   Get,
   Post,
   Body,
@@ -7,13 +8,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProcessService } from './process.service';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 
 @Controller('process')
 export class ProcessController {
   constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly processService: ProcessService,
-    //private readonly logger: Logger,
   ) {}
 
   @Get('/getProcessHello')
@@ -33,7 +35,8 @@ export class ProcessController {
       );
       return token;
     } catch (error) {
-      //this.logger.log('error', `Error listing processes: ${error}`);
+      this.logger.log('error', `Error listing processes: ${error}`);
+      throw error;
     }
   }
 
@@ -53,10 +56,13 @@ export class ProcessController {
         authDetails.url,
       );
       const processList = this.processService.processesToList(processes);
-      //this.logger.log( 'info',`Ongoing processes: ${JSON.stringify(processList)}`, );
+      this.logger.log(
+        'info',
+        `Ongoing processes: ${JSON.stringify(processList)}`,
+      );
       return processList;
     } catch (error) {
-      //this.logger.log('error', `Error listing processes: ${error}`);
+      this.logger.log('error', `Error listing processes: ${error}`);
     }
   }
 
@@ -101,10 +107,10 @@ export class ProcessController {
       if (exists) {
         await this.processService.deleteProcess(token, url, process_id);
       } else {
-        //this.logger.log('warn', `Process with ID ${process_id} does not exist`);
+        this.logger.log('warn', `Process with ID ${process_id} does not exist`);
       }
     } catch (error) {
-      //this.logger.log('error', `Error removing processes: ${error}`);
+      this.logger.log('error', `Error removing processes: ${error}`);
     }
   }
 }

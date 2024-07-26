@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Process } from './process.entity';
 import { HttpModule } from '@nestjs/axios';
 import axios from 'axios';
-//import { logger } from '../components/logger.js';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
+
 @Injectable()
 export class ProcessService {
   private processes: Process[] = [];
-
+  @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger;
   getProcessHello(): string {
     return 'Hello Process!';
   }
@@ -17,11 +19,11 @@ export class ProcessService {
         username: username,
         password: password,
       });
-      //logger.log('info', `Token recived`);
+      this.logger.log('info', `Token recived`);
       console.log(response.data);
       return response.data.access_token;
     } catch (error) {
-      //logger.log('error', `Error getting auth token: ${error}`);
+      this.logger.log('error', `Error getting auth token: ${error}`);
     }
   }
 
