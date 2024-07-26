@@ -7,11 +7,15 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProcessService } from './process.service';
-//import { HttpModule } from '@nestjs/axios';
+import { Logger } from 'winston';
 
 @Controller('process')
 export class ProcessController {
-  constructor(private readonly processService: ProcessService) {}
+  constructor(
+    private readonly processService: ProcessService,
+    logger: Logger,
+  ) {}
+
   @Get('/getProcessHello')
   getProcessHello(): string {
     return this.processService.getProcessHello();
