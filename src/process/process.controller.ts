@@ -13,7 +13,7 @@ import { Logger } from 'winston';
 export class ProcessController {
   constructor(
     private readonly processService: ProcessService,
-    logger: Logger,
+    private readonly logger: Logger,
   ) {}
 
   @Get('/getProcessHello')
@@ -33,7 +33,7 @@ export class ProcessController {
       );
       return token;
     } catch (error) {
-      //logger.log('error', `Error listing processes: ${error}`);
+      this.logger.log('error', `Error listing processes: ${error}`);
     }
   }
 
@@ -53,10 +53,13 @@ export class ProcessController {
         authDetails.url,
       );
       const processList = this.processService.processesToList(processes);
+      this.logger.log(
+        'info',
+        `Ongoing processes: ${JSON.stringify(processList)}`,
+      );
       return processList;
-      //logger.log('info', `Ongoing processes: ${JSON.stringify(processList)}`);
     } catch (error) {
-      //logger.log('error', `Error listing processes: ${error}`);
+      this.logger.log('error', `Error listing processes: ${error}`);
     }
   }
 
@@ -101,10 +104,10 @@ export class ProcessController {
       if (exists) {
         await this.processService.deleteProcess(token, url, process_id);
       } else {
-        //logger.log('warn', `Process with ID ${process_id} does not exist`);
+        this.logger.log('warn', `Process with ID ${process_id} does not exist`);
       }
     } catch (error) {
-      //logger.log("error", `Error removing processes: ${error}`);
+      this.logger.log('error', `Error removing processes: ${error}`);
     }
   }
 }
