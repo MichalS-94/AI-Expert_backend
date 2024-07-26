@@ -73,20 +73,26 @@ export class ProcessController {
     processDetails: {
       camera_ip: string;
       channel: number;
-      url: string;
+      restreamerUrl: string;
       camera_user: string;
       camera_password: string;
       username: string;
       password: string;
     },
   ) {
+    console.log(processDetails);
+    const token = await this.processService.getAuthToken(
+      processDetails.restreamerUrl,
+      processDetails.username,
+      processDetails.password,
+    );
     return this.processService.createStream(
+      token,
       processDetails.camera_ip,
       processDetails.channel,
-      processDetails.url,
+      processDetails.restreamerUrl,
       processDetails.camera_user,
       processDetails.camera_password,
-      processDetails.username,
     );
   }
 

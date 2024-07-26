@@ -31,15 +31,16 @@ export class ProcessService {
     token,
     camera_ip,
     channel,
-    url,
+    restreamerUrl,
     camera_user,
     camera_password,
   ) {
     {
       try {
         const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');
+        console.log(process_id);
         const response = await axios.post(
-          `${url}/api/v3/process`,
+          `${restreamerUrl}/api/v3/process`,
           {
             autostart: true,
             id: process_id,
@@ -176,9 +177,14 @@ export class ProcessService {
             },
           },
         );
-        //logger.log('info', `Stream created successfully with ID ${process_id}`);
+        console.log(response.data);
+        this.logger.log(
+          'info',
+          `Stream created successfully with ID ${process_id}`,
+        );
+        return response;
       } catch (error) {
-        //logger.log('error', `Error creating stream: ${error}`);
+        this.logger.log('error', `Error creating stream: ${error}`);
       }
     }
   }
@@ -224,12 +230,12 @@ export class ProcessService {
           },
         },
       );
-      //logger.log(
-      //'info',
-      // `Snapshot process created successfully with ID ${process_id}`,
-      //);
+      this.logger.log(
+        'info',
+        `Snapshot process created successfully with ID ${process_id}`,
+      );
     } catch (error) {
-      //logger.log('error', `Error creating snaphot process: ${error}`);
+      this.logger.log('error', `Error creating snaphot process: ${error}`);
     }
   }
 
@@ -242,7 +248,7 @@ export class ProcessService {
       });
       return response.data;
     } catch (error) {
-      //logger.log('error', `Error getting processes: ${error}`);
+      this.logger.log('error', `Error getting processes: ${error}`);
     }
   }
 
@@ -256,10 +262,10 @@ export class ProcessService {
           },
         },
       );
-      //logger.log('info', `Process with ID ${process_id} deleted`);
+      this.logger.log('info', `Process with ID ${process_id} deleted`);
       return response.data;
     } catch (error) {
-      //logger.log('error', `Error deleting processes: ${error}`);
+      this.logger.log('error', `Error deleting processes: ${error}`);
     }
   }
 
@@ -290,7 +296,7 @@ export class ProcessService {
       const processes = await this.getProcesses(token, url);
       return processes.some((process) => process.id === process_id);
     } catch (error) {
-      //logger.log('error', `Error checking if process exists: ${error}`);
+      this.logger.log('error', `Error checking if process exists: ${error}`);
     }
   }
 }
