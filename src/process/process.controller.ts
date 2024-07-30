@@ -61,17 +61,22 @@ export class ProcessController {
 
   @Get('/listProcesses')
   async listProcesses(
-    @Body() authDetails: { url: string; username: string; password: string },
+    @Body()
+    authDetails: {
+      restreamerUrl: string;
+      username: string;
+      password: string;
+    },
   ) {
     try {
       const token = await this.processService.getAuthToken(
-        authDetails.url,
+        authDetails.restreamerUrl,
         authDetails.username,
         authDetails.password,
       );
       const processes = await this.processService.getProcesses(
         token,
-        authDetails.url,
+        authDetails.restreamerUrl,
       );
       const processList = this.processService.processesToList(processes);
       this.logger.log(
@@ -129,6 +134,7 @@ export class ProcessController {
         authDetails.username,
         authDetails.password,
       );
+
       const exists = await this.processService.isProcessExists(
         token,
         authDetails.process_id,
@@ -141,7 +147,7 @@ export class ProcessController {
           authDetails.process_id,
         );
         return {
-          status: 200,
+          status: response.status,
           message: `Process with ID ${authDetails.process_id} deleted`,
         };
       } else {

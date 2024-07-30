@@ -26,6 +26,10 @@ export class ProcessService {
       return response.data.access_token;
     } catch (error) {
       this.logger.log('error', `Error getting auth token: ${error}`);
+      return {
+        success: false,
+        message: error.message || 'An error occurred while authenticating',
+      };
     }
   }
 
@@ -182,6 +186,7 @@ export class ProcessService {
           'info',
           `Stream created successfully with ID ${process_id}}`,
         );
+        return response;
       } catch (error) {
         this.logger.log('error', `Error creating stream: ${error}`);
       }
@@ -262,9 +267,13 @@ export class ProcessService {
         },
       );
       this.logger.log('info', `Process with ID ${process_id} deleted`);
-      return response;
+      return {
+        status: response.status,
+        message: `Process with ID ${process_id} deleted`,
+      };
     } catch (error) {
       this.logger.log('error', `Error deleting processes: ${error}`);
+      return error;
     }
   }
 
