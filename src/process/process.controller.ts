@@ -6,22 +6,41 @@ import {
   Body,
   HttpCode,
   HttpStatus,
+  Delete,
+  HttpException,
+  UseInterceptors,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
 } from '@nestjs/common';
 import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import * as morgan from 'morgan';
+import { Observable } from 'rxjs';
 
+// Morgan middleware interceptor
+class MorganInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const ctx = context.switchToHttp();
+    const req = ctx.getRequest();
+    const res = ctx.getResponse();
+    morgan('combined', {
+      stream: {
+        write: (message: string) => console.log(message.trim()),
+      },
+    })(req, res, () => {});
+    return next.handle();
+  }
+}
+
+@UseInterceptors(MorganInterceptor)
 @Controller('process')
 export class ProcessController {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly processService: ProcessService,
   ) {}
-
-  @Get('/getProcessHello')
-  getProcessHello(): string {
-    return this.processService.getProcessHello();
-  }
 
   @Post('/login')
   async login(
@@ -50,7 +69,6 @@ export class ProcessController {
         authDetails.username,
         authDetails.password,
       );
-      console.log(token);
       const processes = await this.processService.getProcesses(
         token,
         authDetails.url,
@@ -80,7 +98,6 @@ export class ProcessController {
       password: string;
     },
   ) {
-    console.log(processDetails);
     const token = await this.processService.getAuthToken(
       processDetails.restreamerUrl,
       processDetails.username,
@@ -96,27 +113,50 @@ export class ProcessController {
     );
   }
 
-  @Post('/removeProcess')
-  @HttpCode(HttpStatus.CREATED)
-  async removeProcess(username, password, process_id, url) {
+  @Delete('/removeProcess')
+  async removeProcess(
+    @Body()
+    authDetails: {
+      restreamerUrl: string;
+      username: string;
+      password: string;
+      process_id: string;
+    },
+  ) {
     try {
       const token = await this.processService.getAuthToken(
-        url,
-        username,
-        password,
+        authDetails.restreamerUrl,
+        authDetails.username,
+        authDetails.password,
       );
       const exists = await this.processService.isProcessExists(
         token,
-        process_id,
-        url,
+        authDetails.process_id,
+        authDetails.restreamerUrl,
       );
       if (exists) {
-        await this.processService.deleteProcess(token, url, process_id);
+        const response = await this.processService.deleteProcess(
+          token,
+          authDetails.restreamerUrl,
+          authDetails.process_id,
+        );
+        return {
+          status: 200,
+          message: `Process with ID ${authDetails.process_id} deleted`,
+        };
       } else {
-        this.logger.log('warn', `Process with ID ${process_id} does not exist`);
+        this.logger.log(
+          'warn',
+          `Process with ID ${authDetails.process_id} does not exist`,
+        );
+        throw new HttpException(
+          `Process with ID ${authDetails.process_id} does not exist`,
+          HttpStatus.NOT_FOUND,
+        );
       }
     } catch (error) {
       this.logger.log('error', `Error removing processes: ${error}`);
+      throw error;
     }
   }
 }

@@ -1,26 +1,28 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Process } from './process.entity';
-import { HttpModule } from '@nestjs/axios';
+import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 
 @Injectable()
 export class ProcessService {
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    private readonly httpService: HttpService,
+  ) {}
   private processes: Process[] = [];
-  @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger;
-  getProcessHello(): string {
-    return 'Hello Process!';
-  }
 
   async getAuthToken(restreanerUrl, username, password) {
     try {
-      const response = await axios.post(`${restreanerUrl}/api/login`, {
-        username: username,
-        password: password,
-      });
+      const response = await this.httpService.axiosRef.post(
+        `${restreanerUrl}/api/login`,
+        {
+          username: username,
+          password: password,
+        },
+      );
       this.logger.log('info', `Token recived`);
-      console.log(response.data);
       return response.data.access_token;
     } catch (error) {
       this.logger.log('error', `Error getting auth token: ${error}`);
@@ -28,17 +30,16 @@ export class ProcessService {
   }
 
   async createStream(
-    token,
-    camera_ip,
-    channel,
-    restreamerUrl,
-    camera_user,
-    camera_password,
+    token: string,
+    camera_ip: string,
+    channel: number,
+    restreamerUrl: string,
+    camera_user: string,
+    camera_password: string,
   ) {
     {
       try {
         const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');
-        console.log(process_id);
         const response = await axios.post(
           `${restreamerUrl}/api/v3/process`,
           {
@@ -177,12 +178,10 @@ export class ProcessService {
             },
           },
         );
-        console.log(response.data);
         this.logger.log(
           'info',
-          `Stream created successfully with ID ${process_id}`,
+          `Stream created successfully with ID ${process_id}}`,
         );
-        return response;
       } catch (error) {
         this.logger.log('error', `Error creating stream: ${error}`);
       }
@@ -252,10 +251,10 @@ export class ProcessService {
     }
   }
 
-  async deleteProcess(token, url, process_id) {
+  async deleteProcess(token, restreamerUrl, process_id) {
     try {
       const response = await axios.delete(
-        `${url}/api/v3/process/${process_id}`,
+        `${restreamerUrl}/api/v3/process/${process_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -263,7 +262,7 @@ export class ProcessService {
         },
       );
       this.logger.log('info', `Process with ID ${process_id} deleted`);
-      return response.data;
+      return response;
     } catch (error) {
       this.logger.log('error', `Error deleting processes: ${error}`);
     }

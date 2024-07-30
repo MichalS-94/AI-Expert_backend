@@ -14,9 +14,9 @@ describe('ProcessController', () => {
     processController = app.get<ProcessController>(ProcessController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(processController.getProcessHello()).toBe('Hello World!');
-    });
-  });
+  // describe('root', () => {
+  //   it('should return "Hello World!"', () => {
+  //     expect(processController.getProcessHello()).toBe('Hello World!');
+  //   });
+  // });
 });
