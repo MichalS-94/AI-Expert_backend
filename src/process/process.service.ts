@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { Process } from './process.entity';
 import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
@@ -44,7 +44,7 @@ export class ProcessService {
     {
       try {
         const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');
-        const response = await axios.post(
+        const response = await this.httpService.axiosRef.post(
           `${restreamerUrl}/api/v3/process`,
           {
             autostart: true,
@@ -186,9 +186,20 @@ export class ProcessService {
           'info',
           `Stream created successfully with ID ${process_id}}`,
         );
-        return response;
+        return {
+          status: response.status,
+          message: `Stream created successfully with ID ${process_id}}`,
+        };
       } catch (error) {
-        this.logger.log('error', `Error creating stream: ${error}`);
+        this.logger.log(
+          'error',
+          `Error creating stream: ${error.response.data.message + ' ' + error.response.data.details || error}`,
+        );
+        console.log(error.response.data);
+        throw new HttpException(
+          `Error creating stream: ${error.response.data.message + error.response.data.details || error}`,
+          error.response.data.code,
+        );
       }
     }
   }
