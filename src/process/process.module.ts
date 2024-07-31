@@ -3,7 +3,6 @@ import { ProcessService } from './process.service';
 import { ProcessController } from './process.controller';
 import { HttpModule } from '@nestjs/axios';
 import { WinstonModule } from 'nest-winston';
-import { MiddlewareConsumer } from '@nestjs/common/interfaces';
 import * as winston from 'winston';
 
 @Module({
@@ -28,7 +27,3 @@ import * as winston from 'winston';
   providers: [ProcessService, Logger],
 })
 export class ProcessModule {}
-//
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer.apply(LoggerMiddleware).forRoutes('*');
-//

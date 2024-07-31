@@ -8,33 +8,11 @@ import {
   HttpStatus,
   Delete,
   HttpException,
-  UseInterceptors,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
 } from '@nestjs/common';
 import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import * as morgan from 'morgan';
-import { Observable } from 'rxjs';
 
-// Morgan middleware interceptor
-class MorganInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const ctx = context.switchToHttp();
-    const req = ctx.getRequest();
-    const res = ctx.getResponse();
-    morgan('combined', {
-      stream: {
-        write: (message: string) => console.log(message.trim()),
-      },
-    })(req, res, () => {});
-    return next.handle();
-  }
-}
-
-@UseInterceptors(MorganInterceptor)
 @Controller('process')
 export class ProcessController {
   constructor(
