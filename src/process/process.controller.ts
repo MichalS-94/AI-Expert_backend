@@ -77,7 +77,7 @@ export class ProcessController {
   @HttpCode(HttpStatus.OK)
   async getHlsStream() {}
 
-  @Post('/createProcess')
+  @Post('/process')
   @HttpCode(HttpStatus.CREATED)
   async createProcess(
     @Body()
@@ -106,7 +106,7 @@ export class ProcessController {
     );
   }
 
-  @Delete('/removeProcess')
+  @Delete('/process')
   async removeProcess(
     @Body()
     authDetails: {
