@@ -23,11 +23,16 @@ export class ProcessController {
 
   @Post('/login')
   async login(
-    @Body() authDetails: { url: string; username: string; password: string },
+    @Body()
+    authDetails: {
+      restreamerUrl: string;
+      username: string;
+      password: string;
+    },
   ) {
     try {
       const token = await this.processService.getAuthToken(
-        authDetails.url,
+        authDetails.restreamerUrl,
         authDetails.username,
         authDetails.password,
       );

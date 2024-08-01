@@ -204,11 +204,11 @@ export class ProcessService {
     }
   }
 
-  async createSnapshot(token, camera_ip, channel, url) {
+  async createSnapshot(token, camera_ip, channel, restreamerUrl) {
     try {
       const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');
       const response = await axios.post(
-        `${url}/api/v3/process`,
+        `${restreamerUrl}/api/v3/process`,
         {
           autostart: true,
           id: `${process_id}_snapshot`,
@@ -254,9 +254,9 @@ export class ProcessService {
     }
   }
 
-  async getProcesses(token, url) {
+  async getProcesses(token, restreamerUrl) {
     try {
-      const response = await axios.get(`${url}/api/v3/process`, {
+      const response = await axios.get(`${restreamerUrl}/api/v3/process`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -310,9 +310,9 @@ export class ProcessService {
     this.processes = this.processes.filter((process) => process.id !== id);
   }
 
-  async isProcessExists(token, process_id, url) {
+  async isProcessExists(token, process_id, restreamerUrl) {
     try {
-      const processes = await this.getProcesses(token, url);
+      const processes = await this.getProcesses(token, restreamerUrl);
       return processes.some((process) => process.id === process_id);
     } catch (error) {
       this.logger.log('error', `Error checking if process exists: ${error}`);
