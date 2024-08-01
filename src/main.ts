@@ -11,7 +11,7 @@ async function bootstrap() {
     morgan('common', {
       stream: {
         write: (message) => {
-          logger.log(message);
+          logger.log('info', message);
         },
       },
     }),

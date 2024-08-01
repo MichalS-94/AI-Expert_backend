@@ -184,11 +184,11 @@ export class ProcessService {
         );
         this.logger.log(
           'info',
-          `Stream created successfully with ID ${process_id}}`,
+          `Stream created successfully with ID ${process_id}`,
         );
         return {
           status: response.status,
-          message: `Stream created successfully with ID ${process_id}}`,
+          message: `Stream created successfully with ID ${process_id}`,
         };
       } catch (error) {
         this.logger.log(

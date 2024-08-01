@@ -12,6 +12,7 @@ import {
 import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { get } from 'http';
 
 @Controller('process')
 export class ProcessController {
@@ -66,6 +67,10 @@ export class ProcessController {
       this.logger.log('error', `Error listing processes: ${error}`);
     }
   }
+
+  @Get('/getHlsStream')
+  @HttpCode(HttpStatus.OK)
+  async getHlsStream() {}
 
   @Post('/createProcess')
   @HttpCode(HttpStatus.CREATED)
