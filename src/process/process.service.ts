@@ -33,7 +33,7 @@ export class ProcessService {
     }
   }
 
-  async createStream(
+  async createProcess(
     token: string,
     camera_ip: string,
     channel: number,
@@ -306,11 +306,7 @@ export class ProcessService {
     return this.processes;
   }
 
-  delete(id: string): void {
-    this.processes = this.processes.filter((process) => process.id !== id);
-  }
-
-  async isProcessExists(token, process_id, restreamerUrl) {
+  async doesProcessExist(token, process_id, restreamerUrl) {
     try {
       const processes = await this.getProcesses(token, restreamerUrl);
       return processes.some((process) => process.id === process_id);

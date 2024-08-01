@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Body,
+  Param,
   HttpCode,
   HttpStatus,
   Delete,
@@ -12,7 +13,6 @@ import {
 import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { get } from 'http';
 
 @Controller('process')
 export class ProcessController {
@@ -21,29 +21,7 @@ export class ProcessController {
     private readonly processService: ProcessService,
   ) {}
 
-  @Post('/login')
-  async login(
-    @Body()
-    authDetails: {
-      restreamerUrl: string;
-      username: string;
-      password: string;
-    },
-  ) {
-    try {
-      const token = await this.processService.getAuthToken(
-        authDetails.restreamerUrl,
-        authDetails.username,
-        authDetails.password,
-      );
-      return token;
-    } catch (error) {
-      this.logger.log('error', `Error listing processes: ${error}`);
-      throw error;
-    }
-  }
-
-  @Get('/listProcesses')
+  @Get()
   async listProcesses(
     @Body()
     authDetails: {
@@ -73,11 +51,7 @@ export class ProcessController {
     }
   }
 
-  @Get('/getHlsStream')
-  @HttpCode(HttpStatus.OK)
-  async getHlsStream() {}
-
-  @Post('/process')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   async createProcess(
     @Body()
@@ -96,7 +70,7 @@ export class ProcessController {
       processDetails.username,
       processDetails.password,
     );
-    return this.processService.createStream(
+    return this.processService.createProcess(
       token,
       processDetails.camera_ip,
       processDetails.channel,
@@ -106,14 +80,15 @@ export class ProcessController {
     );
   }
 
-  @Delete('/process')
-  async removeProcess(
+  @Delete(':process_id')
+  @HttpCode(HttpStatus.OK)
+  async deleteProcess(
+    @Param('process_id') process_id: string,
     @Body()
     authDetails: {
       restreamerUrl: string;
       username: string;
       password: string;
-      process_id: string;
     },
   ) {
     try {
@@ -123,28 +98,25 @@ export class ProcessController {
         authDetails.password,
       );
 
-      const exists = await this.processService.isProcessExists(
+      const exists = await this.processService.doesProcessExist(
         token,
-        authDetails.process_id,
+        process_id,
         authDetails.restreamerUrl,
       );
       if (exists) {
         const response = await this.processService.deleteProcess(
           token,
           authDetails.restreamerUrl,
-          authDetails.process_id,
+          process_id,
         );
         return {
           status: response.status,
-          message: `Process with ID ${authDetails.process_id} deleted`,
+          message: `Process with ID ${process_id} deleted`,
         };
       } else {
-        this.logger.log(
-          'warn',
-          `Process with ID ${authDetails.process_id} does not exist`,
-        );
+        this.logger.log('warn', `Process with ID ${process_id} does not exist`);
         throw new HttpException(
-          `Process with ID ${authDetails.process_id} does not exist`,
+          `Process with ID ${process_id} does not exist`,
           HttpStatus.NOT_FOUND,
         );
       }
@@ -152,5 +124,19 @@ export class ProcessController {
       this.logger.log('error', `Error removing processes: ${error}`);
       throw error;
     }
+  }
+
+  @Get(':process_id/streamUrl')
+  @HttpCode(HttpStatus.OK)
+  async getHlsStream(
+    @Param('process_id') process_id: string,
+    @Body()
+    authDetails: {
+      restreamerUrl: string;
+      username: string;
+      password: string;
+    },
+  ) {
+    return authDetails.restreamerUrl + '/memfs/' + process_id + '.m3u8';
   }
 }
