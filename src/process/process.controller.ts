@@ -46,6 +46,10 @@ export class ProcessController {
       return processList;
     } catch (error) {
       this.logger.log('error', `Error listing processes: ${error}`);
+      throw new HttpException(
+        'Failed to list processes',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -55,19 +59,28 @@ export class ProcessController {
     @Body()
     processDetails: CreateStreamDto,
   ) {
-    const token = await this.processService.getAuthToken(
-      processDetails.restreamerUrl,
-      processDetails.username,
-      processDetails.password,
-    );
-    return this.processService.createProcess(
-      token,
-      processDetails.camera_ip,
-      processDetails.channel,
-      processDetails.restreamerUrl,
-      processDetails.camera_user,
-      processDetails.camera_password,
-    );
+    try {
+      const token = await this.processService.getAuthToken(
+        processDetails.restreamerUrl,
+        processDetails.username,
+        processDetails.password,
+      );
+      const process = await this.processService.createProcess(
+        token,
+        processDetails.camera_ip,
+        processDetails.channel,
+        processDetails.restreamerUrl,
+        processDetails.camera_user,
+        processDetails.camera_password,
+      );
+      return process;
+    } catch (error) {
+      this.logger.log('error', `Error creating process: ${error}`);
+      throw new HttpException(
+        'Failed to create process',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Delete(':process_id')
@@ -108,7 +121,14 @@ export class ProcessController {
       }
     } catch (error) {
       this.logger.log('error', `Error removing processes: ${error}`);
-      throw error;
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new HttpException(
+          'Failed to delete process',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -119,6 +139,15 @@ export class ProcessController {
     @Body()
     authDetails: authtDto,
   ) {
-    return authDetails.restreamerUrl + '/memfs/' + process_id + '.m3u8';
+    try {
+      const streamUrl = authDetails.restreamerUrl + '/memfs/' + process_id + '.m3u8';
+      return { streamUrl };
+    } catch (error) {
+      this.logger.log('error', `Error getting stream URL: ${error}`);
+      throw new HttpException(
+        'Failed to get stream URL',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
