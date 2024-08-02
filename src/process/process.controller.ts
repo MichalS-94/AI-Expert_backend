@@ -13,6 +13,8 @@ import {
 import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { CreateStreamDto } from './dto/create-stream.dto';
+import { authtDto } from './dto/auth.dto';
 
 @Controller('process')
 export class ProcessController {
@@ -24,11 +26,7 @@ export class ProcessController {
   @Get()
   async listProcesses(
     @Body()
-    authDetails: {
-      restreamerUrl: string;
-      username: string;
-      password: string;
-    },
+    authDetails: authtDto,
   ) {
     try {
       const token = await this.processService.getAuthToken(
@@ -55,15 +53,7 @@ export class ProcessController {
   @HttpCode(HttpStatus.CREATED)
   async createProcess(
     @Body()
-    processDetails: {
-      camera_ip: string;
-      channel: number;
-      restreamerUrl: string;
-      camera_user: string;
-      camera_password: string;
-      username: string;
-      password: string;
-    },
+    processDetails: CreateStreamDto,
   ) {
     const token = await this.processService.getAuthToken(
       processDetails.restreamerUrl,
@@ -85,11 +75,7 @@ export class ProcessController {
   async deleteProcess(
     @Param('process_id') process_id: string,
     @Body()
-    authDetails: {
-      restreamerUrl: string;
-      username: string;
-      password: string;
-    },
+    authDetails: authtDto,
   ) {
     try {
       const token = await this.processService.getAuthToken(
@@ -131,11 +117,7 @@ export class ProcessController {
   async getHlsStream(
     @Param('process_id') process_id: string,
     @Body()
-    authDetails: {
-      restreamerUrl: string;
-      username: string;
-      password: string;
-    },
+    authDetails: authtDto,
   ) {
     return authDetails.restreamerUrl + '/memfs/' + process_id + '.m3u8';
   }

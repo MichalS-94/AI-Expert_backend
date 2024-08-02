@@ -1,8 +1,9 @@
 export class CreateStreamDto {
-  token: string;
   camera_ip: string;
-  channel: string;
-  url: string;
+  channel: number;
+  restreamerUrl: string;
   camera_user: string;
   camera_password: string;
+  username: string;
+  password: string;
 }
