@@ -4,6 +4,7 @@ import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import e from 'express';
 
 @Injectable()
 export class ProcessService {
@@ -26,10 +27,7 @@ export class ProcessService {
       return response.data.access_token;
     } catch (error) {
       this.logger.log('error', `Error getting auth token: ${error}`);
-      return {
-        success: false,
-        message: error.message || 'An error occurred while authenticating',
-      };
+      throw error;
     }
   }
 
@@ -195,11 +193,7 @@ export class ProcessService {
           'error',
           `Error creating stream: ${error.response.data.message + ' ' + error.response.data.details || error}`,
         );
-        console.log(error.response.data);
-        throw new HttpException(
-          `Error creating stream: ${error.response.data.message + error.response.data.details || error}`,
-          error.response.data.code,
-        );
+        throw error;
       }
     }
   }
@@ -251,6 +245,7 @@ export class ProcessService {
       );
     } catch (error) {
       this.logger.log('error', `Error creating snaphot process: ${error}`);
+      throw error;
     }
   }
 
@@ -264,6 +259,7 @@ export class ProcessService {
       return response.data;
     } catch (error) {
       this.logger.log('error', `Error getting processes: ${error}`);
+      throw error;
     }
   }
 
@@ -309,9 +305,15 @@ export class ProcessService {
   async doesProcessExist(token, process_id, restreamerUrl) {
     try {
       const processes = await this.getProcesses(token, restreamerUrl);
+      console.log(process_id);
+      for (const process of processes) {
+        console.log(process.id);
+      }
+      console.log(processes.some((process) => process.id === process_id));
       return processes.some((process) => process.id === process_id);
     } catch (error) {
       this.logger.log('error', `Error checking if process exists: ${error}`);
+      throw error;
     }
   }
 }

@@ -47,8 +47,8 @@ export class ProcessController {
     } catch (error) {
       this.logger.log('error', `Error listing processes: ${error}`);
       throw new HttpException(
-        'Failed to list processes',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.response?.data || 'Failed to list processes',
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -120,13 +120,16 @@ export class ProcessController {
         );
       }
     } catch (error) {
-      this.logger.log('error', `Error removing processes: ${error}`);
       if (error instanceof HttpException) {
+        this.logger.log(
+          'error',
+          `HTTP Error removing process: ${error.message}`,
+        );
         throw error;
       } else {
         throw new HttpException(
-          'Failed to delete process',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          error.response?.data || 'Failed to remove process',
+          error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
     }
@@ -140,7 +143,8 @@ export class ProcessController {
     authDetails: authtDto,
   ) {
     try {
-      const streamUrl = authDetails.restreamerUrl + '/memfs/' + process_id + '.m3u8';
+      const streamUrl =
+        authDetails.restreamerUrl + '/memfs/' + process_id + '.m3u8';
       return { streamUrl };
     } catch (error) {
       this.logger.log('error', `Error getting stream URL: ${error}`);
