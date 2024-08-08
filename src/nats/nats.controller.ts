@@ -16,6 +16,6 @@ export class NatsController {
 
   @EventPattern('test-topic')
   handleTestTopic(@Payload() data: any) {
-    console.log('Received message from NATS:');
+    console.log('Received message from NATS:', data);
   }
 }
