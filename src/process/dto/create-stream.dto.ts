@@ -1,9 +1,25 @@
+import { IsString, IsUrl, IsNotEmpty } from 'class-validator';
+
 export class CreateStreamDto {
-  camera_ip: string;
-  channel: number;
+  @IsUrl()
+  @IsNotEmpty()
   restreamerUrl: string;
-  camera_user: string;
-  camera_password: string;
+
+  @IsNotEmpty()
   username: string;
+
+  @IsNotEmpty()
   password: string;
+
+  @IsNotEmpty()
+  camera_ip: string;
+
+  @IsNotEmpty()
+  camera_user: string;
+
+  @IsNotEmpty()
+  camera_password: string;
+
+  @IsNotEmpty()
+  channel: number;
 }

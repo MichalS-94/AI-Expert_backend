@@ -13,7 +13,7 @@ export class InfluxDBService {
     });
     this.writeApi = this.influxDB.getWriteApi(
       process.env.INFLUXDB_ORG || 'tomfoolery',
-      process.env.INFLUXDB_BUCKET || '2dd5461e4c7b59e9',
+      process.env.INFLUXDB_BUCKET || '95f5e31e75586f68',
     );
   }
 
@@ -31,13 +31,21 @@ export class InfluxDBService {
     return queryApi.collectRows(query);
   }
 
-  async saveMessage(message: any) {
-    const point = new Point('nats_message')
-      .tag('topic', 'test-topic')
-      .stringField('text', message.text)
-      .stringField('timestamp', message.timestamp);
+  async saveMessage(message: any): Promise<boolean> {
+    try {
+      const point = new Point('nats_message')
+        .tag('topic', 'test-topic')
+        .stringField('text', message.text)
+        .floatField('value', 10 * Math.random())
+        .stringField('timestamp', message.timestamp);
 
-    this.writeApi.writePoint(point);
-    await this.writeApi.flush();
+      this.writeApi.writePoint(point);
+      this.writeApi.flush().then(() => {
+        console.log('WRITE FINISHED');
+      });
+    } catch (error) {
+      console.error('Error saving message: ', error);
+      return false; // Indicate failure
+    }
   }
 }
