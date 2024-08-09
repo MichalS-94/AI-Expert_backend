@@ -1,4 +1,4 @@
-require('dotenv').config({ path: `../.env` });
+require('dotenv').config();
 
 module.exports = {
   RESTREAMER_URL: process.env.RESTREAMER_URL,

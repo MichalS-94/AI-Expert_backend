@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NatsService } from './nats.service';
 import { NatsController } from './nats.controller';
+import { InfluxDBService } from 'src/influxdb/influxdb.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { NatsController } from './nats.controller';
       },
     ]),
   ],
-  providers: [NatsService],
+  providers: [NatsService, InfluxDBService],
   controllers: [NatsController],
   exports: [NatsService],
 })

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { InfluxdbService } from './influxdbb.service';
+import { InfluxDBService } from './influxdb.service';
 
 @Module({
-  providers: [InfluxdbService],
-  exports: [InfluxdbService],
+  providers: [InfluxDBService],
+  exports: [InfluxDBService],
 })
 export class InfluxdbModule {}

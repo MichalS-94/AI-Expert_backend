@@ -19,6 +19,14 @@ export class NatsService {
   }
 
   async sendMessage(pattern: string, data: any) {
-    return this.client.send(pattern, data).toPromise();
+    const headers = {
+      'custom-header': 'header-value',
+      timestamp: new Date().toISOString(),
+    };
+    return this.client.send(pattern, data).subscribe();
+  }
+
+  async publishMessage(pattern: string, data: any) {
+    return this.client.emit(pattern, data).subscribe();
   }
 }
