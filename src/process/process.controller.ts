@@ -9,12 +9,14 @@ import {
   HttpStatus,
   Delete,
   HttpException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CreateStreamDto } from './dto/create-stream.dto';
-import { authtDto } from './dto/auth.dto';
+import { authDto } from './dto/auth.dto';
 
 @Controller('process')
 export class ProcessController {
@@ -24,9 +26,10 @@ export class ProcessController {
   ) {}
 
   @Get()
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async listProcesses(
     @Body()
-    authDetails: authtDto,
+    authDetails: authDto,
   ) {
     try {
       const token = await this.processService.getAuthToken(
@@ -59,6 +62,7 @@ export class ProcessController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async createProcess(
     @Body()
     processDetails: CreateStreamDto,
@@ -89,10 +93,11 @@ export class ProcessController {
 
   @Delete(':process_id')
   @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async deleteProcess(
     @Param('process_id') process_id: string,
     @Body()
-    authDetails: authtDto,
+    authDetails: authDto,
   ) {
     try {
       const token = await this.processService.getAuthToken(
@@ -141,10 +146,11 @@ export class ProcessController {
 
   @Get(':process_id/streamUrl')
   @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async getHlsStream(
     @Param('process_id') process_id: string,
     @Body()
-    authDetails: authtDto,
+    authDetails: authDto,
   ) {
     try {
       const streamUrl =
