@@ -48,11 +48,11 @@ export class ProcessController {
       this.logger.log('error', `Error listing processes: ${error}`);
       throw new HttpException(
         {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          status: error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
           error: 'Failed to list processes',
           message: error.message,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

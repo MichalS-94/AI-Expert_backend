@@ -198,6 +198,8 @@ export class ProcessService {
     }
   }
 
+  async probeProcess(process_id) {}
+
   async createSnapshot(token, camera_ip, channel, restreamerUrl) {
     try {
       const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');

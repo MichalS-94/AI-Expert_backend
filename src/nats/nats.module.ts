@@ -8,7 +8,7 @@ import { InfluxDBService } from 'src/influxdb/influxdb.service';
   imports: [
     ClientsModule.register([
       {
-        name: 'NATS_SERVICE',
+        name: 'NATS_SERVICE2137',
         transport: Transport.NATS,
         options: {
           url: 'nats://localhost:4222',

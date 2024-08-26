@@ -31,13 +31,15 @@ export class InfluxDBService {
     return queryApi.collectRows(query);
   }
 
-  async saveMessage(message: any): Promise<boolean> {
+  async saveMessage(data: any) {
+    console.log('saving data: ', data);
     try {
-      const point = new Point('nats_message')
-        .tag('topic', 'test-topic')
-        .stringField('text', message.text)
+      const point = new Point('nats_msg_message')
+        .tag('topic', 'example-topic')
+        .stringField('text', data.text)
+        .stringField('text', 'another text field' + Math.random())
         .floatField('value', 10 * Math.random())
-        .stringField('timestamp', message.timestamp);
+        .floatField('testval2', 10 * Math.random());
 
       this.writeApi.writePoint(point);
       this.writeApi.flush().then(() => {
@@ -45,7 +47,7 @@ export class InfluxDBService {
       });
     } catch (error) {
       console.error('Error saving message: ', error);
-      return false; // Indicate failure
+      throw error;
     }
   }
 }
