@@ -1,0 +1,31 @@
+services:
+  nats:
+    container_name: nats-server2
+    image: nats
+    ports:
+      - '4222:4222'
+      - '6222:6222'
+      - '8222:8222'
+    command: [
+        '-js', # JetStream
+        '-DV',
+      ]
+
+  influxdb2:
+    image: influxdb:latest
+    container_name: influxdb2
+    ports:
+      - '8086:8086'
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_ADMIN_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_ADMIN_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET}
+      - DOCKER_INFLUXDB_INIT_RETENTION=${INFLUXDB_RETENTION}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN}
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+
+volumes:
+  influxdb_data:
