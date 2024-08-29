@@ -81,12 +81,21 @@ export class ProcessController {
         processDetails.camera_user,
         processDetails.camera_password,
       );
-      return process;
+      return {
+        status: 201,
+        message: process.message,
+      };
     } catch (error) {
       this.logger.log('error', `Error creating process: ${error}`);
+      console.log('resoponse here-----------------', error.response);
       throw new HttpException(
-        'Failed to create process',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        {
+          status: error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Failed to create Process',
+          message:
+            `${error.response?.data?.message || error.response || 'Unknown error'} ${error.response?.data?.details || ''}`.trim(),
+        },
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

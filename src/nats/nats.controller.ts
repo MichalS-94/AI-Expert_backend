@@ -34,7 +34,6 @@ export class NatsController {
   @EventPattern('test-topic')
   async handleTestTopic(@Payload() data: any) {
     try {
-      console.log('odebraned, pozdrawiam');
       await this.influxDBService.saveMessage(data);
     } catch (error) {
       console.error('Error saving message:', error);

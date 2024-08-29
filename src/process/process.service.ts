@@ -5,6 +5,7 @@ import axios from 'axios';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import e from 'express';
+import { error } from 'console';
 
 @Injectable()
 export class ProcessService {
@@ -42,6 +43,7 @@ export class ProcessService {
     {
       try {
         const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');
+        console.log(process_id);
         const response = await this.httpService.axiosRef.post(
           `${restreamerUrl}/api/v3/process`,
           {
@@ -180,25 +182,79 @@ export class ProcessService {
             },
           },
         );
-        this.logger.log(
-          'info',
-          `Stream created successfully with ID ${process_id}`,
+        const probe = await this.isValidProcess(
+          process_id,
+          token,
+          restreamerUrl,
         );
-        return {
-          status: response.status,
-          message: `Stream created successfully with ID ${process_id}`,
-        };
+        if (probe) {
+          this.logger.log(
+            'info',
+            `Process created successfully with ID ${process_id}`,
+          );
+          return {
+            status: response.status,
+            message: `Process created successfully with ID ${process_id}`,
+          };
+        } else {
+          this.deleteProcess(token, restreamerUrl, process_id);
+          //log and throw  http error with description
+          this.logger.log(
+            'error',
+            `Process creation failed with ID ${process_id}, invalid stream`,
+          );
+          throw new HttpException(
+            `Process creation failed with ID ${process_id}, invalid stream`,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
       } catch (error) {
         this.logger.log(
           'error',
-          `Error creating stream: ${error.response.data.message + ' ' + error.response.data.details || error}`,
+          'Error creating stream: ' +
+            error.response.data?.message +
+            ' ' +
+            error.response.data?.details || error.response,
         );
         throw error;
       }
     }
   }
 
-  async probeProcess(process_id) {}
+  async isValidProcess(process_id, token, restreamerUrl) {
+    try {
+      const response = await this.httpService.axiosRef.get(
+        `${restreamerUrl}/api/v3/process/${process_id}/probe`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (
+        response.data &&
+        response.data.streams &&
+        response.data.streams.length > 0
+      ) {
+        //good process :)
+        this.logger.log('info', `Process ${process_id} has valid stream.`);
+        return true;
+      } else {
+        //bad process :(
+        this.logger.log(
+          'error',
+          `Process ${process_id} is not correctly connected.`,
+        );
+        return false;
+      }
+    } catch (error) {
+      this.logger.log(
+        'error',
+        `Error probing process ${process_id}: ${error.message}`,
+      );
+      throw error;
+    }
+  }
 
   async createSnapshot(token, camera_ip, channel, restreamerUrl) {
     try {
@@ -282,7 +338,7 @@ export class ProcessService {
       };
     } catch (error) {
       this.logger.log('error', `Error deleting processes: ${error}`);
-      return error;
+      throw error;
     }
   }
 
