@@ -1,6 +1,6 @@
 services:
   nats:
-    container_name: nats-server2
+    container_name: nats-server
     image: nats
     ports:
       - '4222:4222'
@@ -11,7 +11,7 @@ services:
         '-DV',
       ]
 
-  influxdb2:
+  influxdb:
     image: influxdb:latest
     container_name: influxdb2
     ports:
@@ -26,6 +26,37 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN}
     volumes:
       - influxdb_data:/var/lib/influxdb
+  restreamer:
+    container_name: restreamer2
+    volumes:
+      - './config:/core/config'
+      - './data:/core/data'
+    environment:
+      - RS_USERNAME=admin
+      - RS_PASSWORD=admin
+      - RS_LOGLEVEL=4
+      - RS_TIMEZONE=Europe/Warsaw
+      - RS_SNAPSHOT_INTERVAL=1m
+    ports:
+      - '8080:8080'
+      - '8181:8181'
+      - '1935:1935'
+      - '1936:1936'
+      - '6000:6000/udp'
+    restart: always
+    image: 'datarhei/restreamer:latest'
+  db:
+    image: postgres:latest
+    container_name: postgres-server
+    environment:
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: my_database
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
 
 volumes:
   influxdb_data:
+  db_data:

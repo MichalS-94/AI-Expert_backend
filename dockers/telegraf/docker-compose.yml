@@ -1,0 +1,12 @@
+services:
+  telegraf2:
+    image: telegraf:latest
+    container_name: telegrafekkk
+    volumes:
+      - ./mytelegraf.conf:/etc/telegraf/telegraf.conf
+    env_file:
+      - ./influxv2.env
+    environment:
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN}

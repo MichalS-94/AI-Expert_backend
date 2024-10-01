@@ -1,5 +1,3 @@
-import { ProcessModule } from './process/process.module';
-import { NatsModule } from './nats/nats.module';
 import { AppModule } from './app.module';
 
 import { NestFactory } from '@nestjs/core';

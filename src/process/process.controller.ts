@@ -87,7 +87,6 @@ export class ProcessController {
       };
     } catch (error) {
       this.logger.log('error', `Error creating process: ${error}`);
-      console.log('resoponse here-----------------', error.response);
       throw new HttpException(
         {
           status: error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
