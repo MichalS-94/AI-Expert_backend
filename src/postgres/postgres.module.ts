@@ -13,11 +13,11 @@ import { Camera } from '../cameras/cameras.entity';
         username: process.env.POSTGRES_USER,
         password: process.env.POSTGRES_PASSWORD,
         database: 'my_database',
-        entities: [Tenant, Camera],
+        autoLoadEntities: true,
         synchronize: true,
       }),
     }),
-    TypeOrmModule.forFeature([Tenant]),
+    TypeOrmModule.forFeature([Tenant, Camera]),
   ],
 })
 export class PostgresModule {}

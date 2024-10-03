@@ -7,9 +7,6 @@ export class Camera {
   id: number;
 
   @Column()
-  camId: number;
-
-  @Column()
   ip: string;
 
   @Column()
