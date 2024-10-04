@@ -17,7 +17,6 @@ export class CamerasController {
 
   @Post()
   async create(@Body() createCameraDto: CreateCameraDto): Promise<Camera> {
-    console.log('createCameraDto', createCameraDto);
     return this.camerasService.create(createCameraDto);
   }
 

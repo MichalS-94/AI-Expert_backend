@@ -14,7 +14,6 @@ export class TenantsController {
 
   @Post('add')
   async create(@Body() createTenantDto: CreateTenantDto): Promise<Tenant> {
-    console.log(createTenantDto);
     return this.tenantsService.create(createTenantDto);
   }
 

@@ -32,7 +32,6 @@ export class InfluxDBService {
   }
 
   async saveMessage(data: any) {
-    console.log('saving data: ', data);
     try {
       const point = new Point('nats_msg_message')
         .tag('topic', 'example-topic')
@@ -42,9 +41,7 @@ export class InfluxDBService {
         .floatField('testval2', 10 * Math.random());
 
       this.writeApi.writePoint(point);
-      this.writeApi.flush().then(() => {
-        console.log('WRITE FINISHED');
-      });
+      this.writeApi.flush().then(() => {});
     } catch (error) {
       console.error('Error saving message: ', error);
       throw error;

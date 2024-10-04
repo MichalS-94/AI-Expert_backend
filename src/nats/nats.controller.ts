@@ -27,7 +27,6 @@ export class NatsController {
       timestamp: new Date().toISOString(),
     };
     await this.natsService.publishMessage('test-topic', message);
-    console.log('Message sent to NATS:', message);
     return 'Message sent to NATS';
   }
 

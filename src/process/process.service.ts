@@ -43,7 +43,6 @@ export class ProcessService {
     {
       try {
         const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');
-        console.log(process_id);
         const response = await this.httpService.axiosRef.post(
           `${restreamerUrl}/api/v3/process`,
           {
@@ -363,11 +362,8 @@ export class ProcessService {
   async doesProcessExist(token, process_id, restreamerUrl) {
     try {
       const processes = await this.getProcesses(token, restreamerUrl);
-      console.log(process_id);
       for (const process of processes) {
-        console.log(process.id);
       }
-      console.log(processes.some((process) => process.id === process_id));
       return processes.some((process) => process.id === process_id);
     } catch (error) {
       this.logger.log('error', `Error checking if process exists: ${error}`);
