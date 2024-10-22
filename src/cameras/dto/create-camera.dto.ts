@@ -6,6 +6,9 @@ export class CreateCameraDto {
   ip: string;
 
   @IsString()
+  processId: string;
+
+  @IsString()
   @IsNotEmpty()
   user: string;
 
@@ -17,5 +20,6 @@ export class CreateCameraDto {
   @IsNotEmpty()
   channel: string;
 
+  @IsNotEmpty()
   tenantId: number;
 }

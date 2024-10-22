@@ -4,21 +4,25 @@ import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import e from 'express';
-import { error } from 'console';
+import { CamerasService } from 'src/cameras/cameras.service';
+import { authDto } from './dto/auth.dto';
+import { CreateProcessDto } from './dto/create-process.dto';
+import { CreateCameraDto } from 'src/cameras/dto/create-camera.dto';
 
 @Injectable()
 export class ProcessService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private readonly httpService: HttpService,
+    private readonly cameraService: CamerasService,
   ) {}
   private processes: Process[] = [];
 
-  async getAuthToken(restreanerUrl, username, password) {
+  async getAuthToken(authDetails: authDto) {
+    const { restreamerUrl, username, password } = authDetails;
     try {
       const response = await this.httpService.axiosRef.post(
-        `${restreanerUrl}/api/login`,
+        `${restreamerUrl}/api/login`,
         {
           username: username,
           password: password,
@@ -34,189 +38,191 @@ export class ProcessService {
 
   async createProcess(
     token: string,
-    camera_ip: string,
-    channel: number,
     restreamerUrl: string,
-    camera_user: string,
-    camera_password: string,
+    processDetails: CreateProcessDto,
   ) {
-    {
-      try {
-        const process_id = `${camera_ip}_${channel}`.replace(/[\W_]+/g, '-');
-        const response = await this.httpService.axiosRef.post(
-          `${restreamerUrl}/api/v3/process`,
-          {
-            autostart: true,
-            id: process_id,
-            input: [
-              {
-                address: `rtsp://${camera_user}:${camera_password}@${camera_ip}:554/cam/realmonitor?channel=${channel}&subtype=1`,
-                id: 'input_0',
-                options: [
-                  '-fflags',
-                  '+genpts',
-                  '-thread_queue_size',
-                  '512',
-                  '-probesize',
-                  '5000000',
-                  '-analyzeduration',
-                  '5000000',
-                  '-timeout',
-                  '5000000',
-                  '-rtsp_transport',
-                  'tcp',
-                ],
-              },
-            ],
-            limits: {
-              cpu_usage: 0,
-              memory_mbytes: 0,
-              waitfor_seconds: 5,
+    const { cameraIp, channel, cameraUser, cameraPassword, tenantId } =
+      processDetails;
+    try {
+      const process_id = `${cameraIp}_${channel}`.replace(/[\W_]+/g, '-');
+      const response = await this.httpService.axiosRef.post(
+        `${restreamerUrl}/api/v3/process`,
+        {
+          autostart: true,
+          id: process_id,
+          input: [
+            {
+              address: `rtsp://${cameraUser}:${cameraPassword}@${cameraIp}:554/cam/realmonitor?channel=${channel}&subtype=1`,
+              id: 'input_0',
+              options: [
+                '-fflags',
+                '+genpts',
+                '-thread_queue_size',
+                '512',
+                '-probesize',
+                '5000000',
+                '-analyzeduration',
+                '5000000',
+                '-timeout',
+                '5000000',
+                '-rtsp_transport',
+                'tcp',
+              ],
             },
-            options: [
-              '-loglevel',
-              'level+info',
-              '-err_detect',
-              'ignore_err',
-              '-y',
-            ],
-            output: [
-              {
-                address: `{memfs}/${process_id}_{outputid}.m3u8`,
-                cleanup: [
-                  {
-                    pattern: `memfs:/${process_id}**`,
-                    purge_on_delete: true,
-                  },
-                  {
-                    max_file_age_seconds: 24,
-                    pattern: `memfs:/${process_id}_{outputid}.m3u8`,
-                    purge_on_delete: true,
-                  },
-                  {
-                    max_file_age_seconds: 24,
-                    max_files: 12,
-                    pattern: `memfs:/${process_id}_{outputid}_**.ts`,
-                    purge_on_delete: true,
-                  },
-                  {
-                    max_file_age_seconds: 24,
-                    pattern: `memfs:/${process_id}.m3u8`,
-                    purge_on_delete: true,
-                  },
-                ],
-                id: 'output_0',
-                options: [
-                  '-dn',
-                  '-sn',
-                  '-map',
-                  '0:0',
-                  '-codec:v',
-                  'libx264',
-                  '-preset:v',
-                  'ultrafast',
-                  '-b:v',
-                  '4096k',
-                  '-maxrate:v',
-                  '4096k',
-                  '-bufsize:v',
-                  '4096k',
-                  '-r',
-                  '25',
-                  '-sc_threshold',
-                  '0',
-                  '-pix_fmt',
-                  'yuv420p',
-                  '-g',
-                  '50',
-                  '-keyint_min',
-                  '50',
-                  '-fps_mode',
-                  'auto',
-                  '-tune:v',
-                  'zerolatency',
-                  '-map',
-                  '0:0',
-                  '-codec:a',
-                  'aac',
-                  '-b:a',
-                  '64k',
-                  '-shortest',
-                  '-metadata',
-                  `title=http://loclahost:8080/${process_id}/oembed.json`,
-                  '-metadata',
-                  'service_provider=datarhei-Restreamer',
-                  '-f',
-                  'hls',
-                  '-start_number',
-                  '0',
-                  '-hls_time',
-                  '2',
-                  '-hls_list_size',
-                  '6',
-                  '-hls_flags',
-                  'append_list+delete_segments+program_date_time+temp_file',
-                  '-hls_delete_threshold',
-                  '4',
-                  '-hls_segment_filename',
-                  `{memfs}/${process_id}_{outputid}_%04d.ts`,
-                  '-master_pl_name',
-                  `${process_id}.m3u8`,
-                  '-master_pl_publish_rate',
-                  '2',
-                  '-method',
-                  'PUT',
-                ],
-              },
-            ],
-            reconnect: true,
-            reconnect_delay_seconds: 15,
-            reference: `${process_id}`,
-            stale_timeout_seconds: 30,
-            type: 'ffmpeg',
+          ],
+          limits: {
+            cpu_usage: 0,
+            memory_mbytes: 0,
+            waitfor_seconds: 5,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+          options: [
+            '-loglevel',
+            'level+info',
+            '-err_detect',
+            'ignore_err',
+            '-y',
+          ],
+          output: [
+            {
+              address: `{memfs}/${process_id}_{outputid}.m3u8`,
+              cleanup: [
+                {
+                  pattern: `memfs:/${process_id}**`,
+                  purge_on_delete: true,
+                },
+                {
+                  max_file_age_seconds: 24,
+                  pattern: `memfs:/${process_id}_{outputid}.m3u8`,
+                  purge_on_delete: true,
+                },
+                {
+                  max_file_age_seconds: 24,
+                  max_files: 12,
+                  pattern: `memfs:/${process_id}_{outputid}_**.ts`,
+                  purge_on_delete: true,
+                },
+                {
+                  max_file_age_seconds: 24,
+                  pattern: `memfs:/${process_id}.m3u8`,
+                  purge_on_delete: true,
+                },
+              ],
+              id: 'output_0',
+              options: [
+                '-dn',
+                '-sn',
+                '-map',
+                '0:0',
+                '-codec:v',
+                'libx264',
+                '-preset:v',
+                'ultrafast',
+                '-b:v',
+                '4096k',
+                '-maxrate:v',
+                '4096k',
+                '-bufsize:v',
+                '4096k',
+                '-r',
+                '25',
+                '-sc_threshold',
+                '0',
+                '-pix_fmt',
+                'yuv420p',
+                '-g',
+                '50',
+                '-keyint_min',
+                '50',
+                '-fps_mode',
+                'auto',
+                '-tune:v',
+                'zerolatency',
+                '-map',
+                '0:0',
+                '-codec:a',
+                'aac',
+                '-b:a',
+                '64k',
+                '-shortest',
+                '-metadata',
+                `title=http://loclahost:8080/${process_id}/oembed.json`,
+                '-metadata',
+                'service_provider=datarhei-Restreamer',
+                '-f',
+                'hls',
+                '-start_number',
+                '0',
+                '-hls_time',
+                '2',
+                '-hls_list_size',
+                '6',
+                '-hls_flags',
+                'append_list+delete_segments+program_date_time+temp_file',
+                '-hls_delete_threshold',
+                '4',
+                '-hls_segment_filename',
+                `{memfs}/${process_id}_{outputid}_%04d.ts`,
+                '-master_pl_name',
+                `${process_id}.m3u8`,
+                '-master_pl_publish_rate',
+                '2',
+                '-method',
+                'PUT',
+              ],
             },
+          ],
+          reconnect: true,
+          reconnect_delay_seconds: 15,
+          reference: `${process_id}`,
+          stale_timeout_seconds: 30,
+          type: 'ffmpeg',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
+        },
+      );
+      const probe = await this.isValidProcess(process_id, token, restreamerUrl);
+      if (probe) {
+        const createCameraDto: CreateCameraDto = {
+          processId: process_id,
+          ip: cameraIp,
+          user: cameraUser,
+          password: cameraPassword,
+          channel: channel,
+          tenantId: tenantId, // Replace with actual tenant ID
+        };
+        this.cameraService.create(createCameraDto);
+        this.logger.log(
+          'info',
+          `Process created successfully with ID ${process_id}`,
         );
-        const probe = await this.isValidProcess(
-          process_id,
-          token,
-          restreamerUrl,
-        );
-        if (probe) {
-          this.logger.log(
-            'info',
-            `Process created successfully with ID ${process_id}`,
-          );
-          return {
-            status: response.status,
-            message: `Process created successfully with ID ${process_id}`,
-          };
-        } else {
-          this.deleteProcess(token, restreamerUrl, process_id);
-          //log and throw  http error with description
-          this.logger.log(
-            'error',
-            `Process creation failed with ID ${process_id}, invalid stream`,
-          );
-          throw new HttpException(
-            `Process creation failed with ID ${process_id}, invalid stream`,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
-      } catch (error) {
+        return {
+          status: response.status,
+          message: `Process created successfully with ID ${process_id}`,
+        };
+      } else {
+        this.deleteProcess(token, restreamerUrl, process_id);
+        //log and throw  http error with description
         this.logger.log(
           'error',
-          'Error creating stream: ' +
-            error.response.data?.message +
-            ' ' +
-            error.response.data?.details || error.response,
+          `Process creation failed with ID ${process_id}, invalid stream`,
         );
-        throw error;
+        throw new HttpException(
+          `Process creation failed with ID ${process_id}, invalid stream`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
+    } catch (error) {
+      this.logger.log(
+        'error',
+        'Error creating stream: ' +
+          error.response.data?.message +
+          ' ' +
+          error.response.data?.details || error.response,
+      );
+      throw error;
     }
   }
 

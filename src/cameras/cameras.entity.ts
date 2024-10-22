@@ -7,6 +7,9 @@ export class Camera {
   id: number;
 
   @Column()
+  processId: string;
+
+  @Column()
   ip: string;
 
   @Column()

@@ -10,13 +10,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
 
-  const microserviceOptions: MicroserviceOptions = {
-    transport: Transport.NATS,
-    options: {
-      url: 'nats://localhost:4222', // Replace with your NATS server URL if different
-    },
-  };
-  app.connectMicroservice(microserviceOptions);
+  // const microserviceOptions: MicroserviceOptions = {
+  //   transport: Transport.NATS,
+  //   options: {
+  //     url: 'nats://10.10.198.151:8222', // Replace with your NATS server URL if different
+  //   },
+  // };
+  // app.connectMicroservice(microserviceOptions);
 
   app.useLogger(logger);
   app.use(

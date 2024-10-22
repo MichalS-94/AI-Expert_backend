@@ -13,7 +13,7 @@ export class NatsService {
     this.client = ClientProxyFactory.create({
       transport: Transport.NATS,
       options: {
-        url: 'nats://localhost:4222', // Replace with your NATS server URL if different
+        url: 'nats://10.10.198.151:8222', // Replace with your NATS server URL if different
       },
     });
   }

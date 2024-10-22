@@ -32,11 +32,7 @@ export class ProcessController {
     authDetails: authDto,
   ) {
     try {
-      const token = await this.processService.getAuthToken(
-        authDetails.restreamerUrl,
-        authDetails.username,
-        authDetails.password,
-      );
+      const token = await this.processService.getAuthToken(authDetails);
       const processes = await this.processService.getProcesses(
         token,
         authDetails.restreamerUrl,
@@ -62,31 +58,27 @@ export class ProcessController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async createProcess(
+  @UsePipes(
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }),
+  )
+  async addProcess(
     @Body()
     processDetails: CreateStreamDto,
+    @Body()
+    authDetails: authDto,
   ) {
     try {
-      const token = await this.processService.getAuthToken(
-        processDetails.restreamerUrl,
-        processDetails.username,
-        processDetails.password,
-      );
+      const token = await this.processService.getAuthToken(authDetails);
       const process = await this.processService.createProcess(
         token,
-        processDetails.camera_ip,
-        processDetails.channel,
-        processDetails.restreamerUrl,
-        processDetails.camera_user,
-        processDetails.camera_password,
+        authDetails.restreamerUrl,
+        processDetails,
       );
       return {
         status: 201,
         message: process.message,
       };
     } catch (error) {
-      this.logger.log('error', `Error creating process: ${error}`);
       throw new HttpException(
         {
           status: error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -108,11 +100,7 @@ export class ProcessController {
     authDetails: authDto,
   ) {
     try {
-      const token = await this.processService.getAuthToken(
-        authDetails.restreamerUrl,
-        authDetails.username,
-        authDetails.password,
-      );
+      const token = await this.processService.getAuthToken(authDetails);
 
       const exists = await this.processService.doesProcessExist(
         token,
@@ -169,6 +157,25 @@ export class ProcessController {
       throw new HttpException(
         'Failed to get stream URL',
         HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  private async handleRequest<T>(
+    operation: () => Promise<T>,
+    errorMessage: string,
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      this.logger.log('error', `${errorMessage}: ${error}`);
+      throw new HttpException(
+        {
+          status: error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          error: errorMessage,
+          message: error.message,
+        },
+        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

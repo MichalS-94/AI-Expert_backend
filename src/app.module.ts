@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { PostgresModule } from './postgres/postgres.module';
 import { CamerasModule } from './cameras/cameras.module';
 import { TenantsModule } from './tenants/tenants.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     NatsModule,
@@ -15,6 +17,8 @@ import { TenantsModule } from './tenants/tenants.module';
     PostgresModule,
     CamerasModule,
     TenantsModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

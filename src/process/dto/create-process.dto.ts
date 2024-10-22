@@ -1,6 +1,6 @@
-import { IsString, IsUrl, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
-export class CreateStreamDto {
+export class CreateProcessDto {
   @IsString()
   @IsNotEmpty()
   cameraIp: string;

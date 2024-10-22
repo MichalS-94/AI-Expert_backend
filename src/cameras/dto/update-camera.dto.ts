@@ -1,6 +1,10 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, isNumber } from 'class-validator';
 
 export class UpdateCameraDto {
+  @IsNotEmpty()
+  @IsString()
+  processId: string;
+
   @IsString()
   ip: string;
 

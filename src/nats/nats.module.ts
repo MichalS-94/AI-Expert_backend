@@ -11,7 +11,7 @@ import { InfluxDBService } from 'src/influxdb/influxdb.service';
         name: 'NATS_SERVICE2137',
         transport: Transport.NATS,
         options: {
-          url: 'nats://localhost:4222',
+          url: 'nats://10.10.198.151:8222',
         },
       },
     ]),
