@@ -17,7 +17,6 @@ import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CreateStreamDto } from './dto/create-stream.dto';
 import { authDto } from './dto/auth.dto';
-import { Public } from 'src/auth/auth.guard';
 
 @Controller('process')
 export class ProcessController {
@@ -26,7 +25,6 @@ export class ProcessController {
     private readonly processService: ProcessService,
   ) {}
 
-  @Public()
   @Get()
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async listProcesses(
