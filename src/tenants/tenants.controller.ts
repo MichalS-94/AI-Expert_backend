@@ -2,11 +2,13 @@ import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { Tenant } from './tenants.entity';
 import { CreateTenantDto } from './dto/create-tenant.dto';
+import { Public } from 'src/auth/auth.guard';
 
 @Controller('tenants')
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}
 
+  @Public()
   @Get('list')
   async findAll(): Promise<Tenant[]> {
     return this.tenantsService.findAll();

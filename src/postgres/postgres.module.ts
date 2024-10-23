@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Tenant } from '../tenants/tenants.entity';
 import { Camera } from '../cameras/cameras.entity';
+import { User } from 'src/users/users.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -17,7 +18,7 @@ import { Camera } from '../cameras/cameras.entity';
         synchronize: true,
       }),
     }),
-    TypeOrmModule.forFeature([Tenant, Camera]),
+    TypeOrmModule.forFeature([Tenant, Camera, User]),
   ],
 })
 export class PostgresModule {}
