@@ -8,35 +8,32 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard, Public } from './auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
+import { LocalAuthGuard } from './local-auth.guard';
+import { Public } from './auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
-  @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
-    return this.authService.signIn(signInDto.username, signInDto.password);
-  }
-
+  @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
   }
 
   @Public()
-  @Post('register')
-  createUser(@Body() signUpDto: Record<string, any>) {
-    return this.usersService.createUser(
-      signUpDto.username,
-      signUpDto.password,
-      signUpDto.role,
-    );
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  async login(@Request() req) {
+    return this.authService.login(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Request() res) {
+    return res.logout();
   }
 }
