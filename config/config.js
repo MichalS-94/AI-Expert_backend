@@ -8,4 +8,5 @@ module.exports = {
   CHANNEL: process.env.CHANNEL,
   CAMERA_USER: process.env.CAMERA_USER,
   CAMERA_PASSWORD: process.env.CAMERA_PASSWORD,
+  JWT_SECRET: process.env.JWT_SECRET,
 };

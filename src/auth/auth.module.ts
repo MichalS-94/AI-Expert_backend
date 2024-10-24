@@ -9,15 +9,18 @@ import { APP_GUARD } from '@nestjs/core';
 import { LocalStrategy } from './local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
-
+import { ConfigModule } from '@nestjs/config';
+import { JwtAuthGuard } from './jwt-auth.guard';
 @Module({
   imports: [
     PassportModule,
     UsersModule,
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '600s' },
+    JwtModule.registerAsync({
+      useFactory: async () => ({
+        global: true,
+        secret: process.env.JWT_SECRET,
+        signOptions: { expiresIn: '600s' },
+      }),
     }),
   ],
   providers: [
