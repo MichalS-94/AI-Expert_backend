@@ -1,19 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InfluxDB, Point } from '@influxdata/influxdb-client';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class InfluxDBService {
   private influxDB: InfluxDB;
   private writeApi: ReturnType<InfluxDB['getWriteApi']>;
 
-  constructor() {
+  inject: [ConfigService];
+  constructor(configService: ConfigService) {
     this.influxDB = new InfluxDB({
-      url: process.env.INFLUXDB_URL || 'http://localhost:8086',
-      token: process.env.INFLUXDB_TOKEN || 'my-token',
+      url: configService.get<string>('INFLUXDB_URL'),
+      token: configService.get<string>('INFLUXDB_TOKEN'),
     });
     this.writeApi = this.influxDB.getWriteApi(
-      process.env.INFLUXDB_ORG || 'tomfoolery',
-      process.env.INFLUXDB_BUCKET || '95f5e31e75586f68',
+      configService.get<string>('INFLUXDB_ORG'),
+      configService.get<string>('INFLUXDB_BUCKET'),
     );
   }
 
