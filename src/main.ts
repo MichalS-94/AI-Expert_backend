@@ -8,6 +8,7 @@ import * as morgan from 'morgan';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('v1');
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
 
   // const microserviceOptions: MicroserviceOptions = {
