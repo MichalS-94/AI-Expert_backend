@@ -15,9 +15,11 @@ import {
 import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { CreateStreamDto } from './dto/create-stream.dto';
+import { CreateProcessDto } from './dto/create-process.dto';
 import { authDto } from './dto/auth.dto';
+import { ApiTags, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('process')
 @Controller('process')
 export class ProcessController {
   constructor(
@@ -26,6 +28,7 @@ export class ProcessController {
   ) {}
 
   @Get()
+  @ApiBody({ type: authDto })
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async listProcesses(
     @Body()
@@ -57,13 +60,14 @@ export class ProcessController {
   }
 
   @Post()
+  @ApiBody({ type: CreateProcessDto })
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }),
   )
   async addProcess(
     @Body()
-    processDetails: CreateStreamDto,
+    processDetails: CreateProcessDto,
     @Body()
     authDetails: authDto,
   ) {

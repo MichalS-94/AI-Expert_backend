@@ -2,7 +2,7 @@ import { AppModule } from './app.module';
 
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import * as morgan from 'morgan';
 
@@ -10,6 +10,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('v1');
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
+  const config = new DocumentBuilder()
+    .setTitle('Ai Expert')
+    .setDescription('Api for Ai Experting ')
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
 
   // const microserviceOptions: MicroserviceOptions = {
   //   transport: Transport.NATS,

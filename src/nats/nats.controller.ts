@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body } from '@nestjs/common';
 import { NatsService } from './nats.service';
 import { EventPattern, Payload, Ctx, NatsContext } from '@nestjs/microservices';
 import { InfluxDBService } from '../influxdb/influxdb.service'; // Import the InfluxDB service
+import { ApiTags, ApiBody } from '@nestjs/swagger';
 
-@Controller()
+@Controller('nats')
+@ApiTags('nats')
 export class NatsController {
   constructor(
     private readonly natsService: NatsService,
