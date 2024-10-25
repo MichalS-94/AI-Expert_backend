@@ -16,7 +16,7 @@ import { ProcessService } from './process.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CreateProcessDto } from './dto/create-process.dto';
-import { authDto } from './dto/auth.dto';
+import { AuthDto } from './dto/auth.dto';
 import { ApiTags, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('process')
@@ -28,11 +28,11 @@ export class ProcessController {
   ) {}
 
   @Get()
-  @ApiBody({ type: authDto })
+  @ApiBody({ type: AuthDto })
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async listProcesses(
     @Body()
-    authDetails: authDto,
+    authDetails: AuthDto,
   ) {
     try {
       const token = await this.processService.getAuthToken(authDetails);
@@ -69,7 +69,7 @@ export class ProcessController {
     @Body()
     processDetails: CreateProcessDto,
     @Body()
-    authDetails: authDto,
+    authDetails: AuthDto,
   ) {
     try {
       const token = await this.processService.getAuthToken(authDetails);
@@ -96,12 +96,13 @@ export class ProcessController {
   }
 
   @Delete(':process_id')
+  @ApiBody({ type: AuthDto })
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async deleteProcess(
     @Param('process_id') process_id: string,
     @Body()
-    authDetails: authDto,
+    authDetails: AuthDto,
   ) {
     try {
       const token = await this.processService.getAuthToken(authDetails);
@@ -145,12 +146,13 @@ export class ProcessController {
   }
 
   @Get(':process_id/streamUrl')
+  @ApiBody({ type: AuthDto })
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   async getHlsStream(
     @Param('process_id') process_id: string,
     @Body()
-    authDetails: authDto,
+    authDetails: AuthDto,
   ) {
     try {
       const streamUrl =
@@ -161,25 +163,6 @@ export class ProcessController {
       throw new HttpException(
         'Failed to get stream URL',
         HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  private async handleRequest<T>(
-    operation: () => Promise<T>,
-    errorMessage: string,
-  ): Promise<T> {
-    try {
-      return await operation();
-    } catch (error) {
-      this.logger.log('error', `${errorMessage}: ${error}`);
-      throw new HttpException(
-        {
-          status: error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-          error: errorMessage,
-          message: error.message,
-        },
-        error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

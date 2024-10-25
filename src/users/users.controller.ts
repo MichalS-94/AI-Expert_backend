@@ -13,7 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
-@ApiTags('process')
+@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -23,7 +23,7 @@ export class UsersController {
     return this.usersService.createUser(createCameraDto);
   }
 
-  @Get()
+  @Get('list')
   async findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
@@ -34,6 +34,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @ApiBody({ type: CreateUserDto })
   async update(
     @Param('id') id: number,
     @Body() updateCameraDto: CreateUserDto,

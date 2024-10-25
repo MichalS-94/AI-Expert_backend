@@ -9,12 +9,12 @@ import { ApiTags } from '@nestjs/swagger';
 export class TenantsController {
   constructor(private readonly tenantsService: TenantsService) {}
 
-  @Get('list')
+  @Get('/list')
   async findAll(): Promise<Tenant[]> {
     return this.tenantsService.findAll();
   }
 
-  @Post('add')
+  @Post()
   async create(@Body() createTenantDto: CreateTenantDto): Promise<Tenant> {
     return this.tenantsService.create(createTenantDto);
   }

@@ -5,7 +5,7 @@ import axios from 'axios';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CamerasService } from 'src/cameras/cameras.service';
-import { authDto } from './dto/auth.dto';
+import { AuthDto } from './dto/auth.dto';
 import { CreateProcessDto } from './dto/create-process.dto';
 import { CreateCameraDto } from 'src/cameras/dto/create-camera.dto';
 
@@ -18,7 +18,7 @@ export class ProcessService {
   ) {}
   private processes: Process[] = [];
 
-  async getAuthToken(authDetails: authDto) {
+  async getAuthToken(authDetails: AuthDto) {
     const { restreamerUrl, username, password } = authDetails;
     try {
       const response = await this.httpService.axiosRef.post(
